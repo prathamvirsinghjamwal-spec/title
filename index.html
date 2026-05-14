@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1d4ed8" />
+  <meta name="description" content="TITLE STOCK - Notebook cover inventory management" />
+  <title>TITLE STOCK</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="TITLE STOCK" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-wrap">
+    <header class="brand">
+      <div class="brand-left">
+        <div class="logo-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v18l-4 -2l-4 2l-4 -2l-4 2v-18z"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        </div>
+        <div>
+          <h1>TITLE STOCK</h1>
+          <p class="sub">Notebook cover inventory</p>
+        </div>
+      </div>
+      <div class="brand-right">
+        <span id="last-saved" class="last-saved">Saved</span>
+      </div>
+    </header>
+
+    <div id="install-banner" class="install-banner" style="display:none;">
+      <span>Install TITLE STOCK on your device</span>
+      <button id="install-btn" class="btn-primary">Install</button>
+      <button id="install-dismiss" class="icon-btn" aria-label="Dismiss">✕</button>
+    </div>
+
+    <div id="alert-area"></div>
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Total nags</div>
+        <div class="metric-value" id="m-total-nags">0</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total notebooks</div>
+        <div class="metric-value" id="m-total-nb">0</div>
+      </div>
+      <div class="metric success">
+        <div class="metric-label">Stock value</div>
+        <div class="metric-value" id="m-stock-val">₹0</div>
+      </div>
+      <div class="metric alert">
+        <div class="metric-label">Low stock</div>
+        <div class="metric-value" id="m-low">0</div>
+      </div>
+    </div>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="entry">+ New entry</button>
+      <button class="tab" data-tab="stock">Stock</button>
+      <button class="tab" data-tab="settings">Settings</button>
+    </nav>
+
+    <!-- ENTRY PANEL -->
+    <section class="panel active" id="panel-entry">
+      <div class="form-card">
+        <h2 class="form-title">Add cover stock</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-seller">Seller name</label>
+            <input type="text" id="f-seller" placeholder="e.g. Sharma Traders" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="f-type">Cover type</label>
+            <select id="f-type">
+              <option value="notebook">Notebook cover</option>
+              <option value="a4">A4 notebook cover</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-mrp">MRP (₹)</label>
+            <select id="f-mrp">
+              <option value="20">₹20</option>
+              <option value="30">₹30</option>
+              <option value="40">₹40</option>
+              <option value="50">₹50</option>
+              <option value="60">₹60</option>
+              <option value="80">₹80</option>
+              <option value="100">₹100</option>
+              <option value="120">₹120</option>
+              <option value="custom">Custom...</option>
+            </select>
+          </div>
+          <div class="field" id="f-mrp-custom-wrap" style="display:none;">
+            <label for="f-mrp-custom">Custom MRP (₹)</label>
+            <input type="number" id="f-mrp-custom" placeholder="Enter MRP" min="0" inputmode="decimal" />
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="f-nags">Nags received</label>
+            <input type="number" id="f-nags" placeholder="e.g. 10" min="0" step="1" inputmode="numeric" />
+            <span class="helper">1 nag = bundle of covers</span>
+          </div>
+          <div class="field">
+            <label for="f-per-nag">Notebooks per nag</label>
+            <input type="number" id="f-per-nag" placeholder="e.g. 100" min="0" step="1" inputmode="numeric" />
+            <span class="helper">Covers made into notebooks</span>
+          </div>
+          <div class="field">
+            <label for="f-landing">Landing cost / cover (₹)</label>
+            <input type="number" id="f-landing" placeholder="e.g. 8.50" min="0" step="0.01" inputmode="decimal" />
+            <span class="helper">All-in cost incl. transport</span>
+          </div>
+          <div class="field">
+            <label for="f-date">Date</label>
+            <input type="date" id="f-date" />
+          </div>
+        </div>
+
+        <div class="row-actions">
+          <button class="btn-primary" id="btn-add">✓ Add to stock</button>
+          <button class="btn-secondary" id="btn-clear-form">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STOCK PANEL -->
+    <section class="panel" id="panel-stock">
+      <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="Search seller or MRP..." />
+        <select id="filter-type">
+          <option value="all">All types</option>
+          <option value="notebook">Notebook cover</option>
+          <option value="a4">A4 cover</option>
+        </select>
+        <select id="filter-status">
+          <option value="all">All status</option>
+          <option value="low">Low stock only</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Seller</th>
+              <th>Type</th>
+              <th>MRP</th>
+              <th class="num-right">Nags</th>
+              <th class="num-right hide-mobile">Notebooks</th>
+              <th class="num-right">Value</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="stock-tbody">
+            <tr><td colspan="8" class="empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SETTINGS PANEL -->
+    <section class="panel" id="panel-settings">
+      <div class="form-card">
+        <h2 class="form-title">Low stock alert</h2>
+        <div class="form-grid">
+          <div class="field">
+            <label for="s-thresh-nb">Notebook cover threshold (nags)</label>
+            <input type="number" id="s-thresh-nb" min="0" step="1" inputmode="numeric" />
+          </div>
+          <div class="field">
+            <label for="s-thresh-a4">A4 cover threshold (nags)</label>
+            <input type="number" id="s-thresh-a4" min="0" step="1" inputmode="numeric" />
+          </div>
+        </div>
+        <div class="row-actions">
+          <button class="btn-primary" id="btn-save-settings">✓ Save settings</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-title">Data</h2>
+        <p class="settings-desc">All your stock data is saved on this device and persists across sessions. Works offline.</p>
+        <div class="row-actions">
+          <button class="btn-secondary" id="btn-export">⬇ Export CSV</button>
+          <button class="btn-secondary" id="btn-import">⬆ Import CSV</button>
+          <input type="file" id="file-import" accept=".csv" style="display:none;" />
+          <button class="btn-danger" id="btn-clear">🗑 Clear all data</button>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <h2 class="form-title">About</h2>
+        <p class="settings-desc">TITLE STOCK v1.0 — A Progressive Web App for notebook cover inventory.</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(err => console.log('SW reg failed', err));
+      });
+    }
+  </script>
+</body>
+</html>
